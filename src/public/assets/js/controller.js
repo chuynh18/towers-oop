@@ -22,7 +22,9 @@ var Controller = /** @class */ (function () {
         this.canvasSize = utility_1.calculateDesiredCanvasSize();
         this.keypadCanvas = keypadCanvas;
         this.numKeypadCells = this.keypadView.getBoardInfo().numCellsX;
+        this.keypadSize = [0.95 * this.canvasSize, 0.95 * this.canvasSize / this.numKeypadCells];
         this.attachEventHandlers();
+        this.keypad.showKeypad(this.keypadSize);
     }
     Controller.prototype.attachEventHandlers = function () {
         var _this = this;
@@ -40,7 +42,7 @@ var Controller = /** @class */ (function () {
                 else if (valueAtActiveCell > 0) {
                     activeIndex = valueAtActiveCell;
                 }
-                _this.keypad.showKeypad([_this.canvasSize, _this.canvasSize / _this.numKeypadCells], activeIndex);
+                _this.keypad.showKeypad(_this.keypadSize, activeIndex);
             });
             // event handler for clicks on the virtual keypad
             this.keypadCanvas.addEventListener("click", function (event) {
@@ -65,7 +67,7 @@ var Controller = /** @class */ (function () {
                     else if (valueAtActiveCell_1 > 0) {
                         activeIndex = valueAtActiveCell_1;
                     }
-                    _this.keypad.showKeypad([_this.canvasSize, _this.canvasSize / _this.numKeypadCells], activeIndex);
+                    _this.keypad.showKeypad(_this.keypadSize, activeIndex);
                 }
             });
             // event handler that allows user to input and modify their guesses
@@ -77,7 +79,7 @@ var Controller = /** @class */ (function () {
                     if (_this.model.insertGuess(key)) {
                         _this.model.activateCell([-1, -1]);
                         _this.model.showBoard(_this.canvasSize);
-                        _this.keypad.showKeypad([_this.canvasSize, _this.canvasSize / _this.numKeypadCells]);
+                        _this.keypad.showKeypad(_this.keypadSize);
                     }
                 }
                 else if (event.keyCode === 8 || event.keyCode === 46) {
@@ -85,7 +87,7 @@ var Controller = /** @class */ (function () {
                     _this.model.deleteGuess();
                     _this.model.activateCell([-1, -1]);
                     _this.model.showBoard(_this.canvasSize);
-                    _this.keypad.showKeypad([_this.canvasSize, _this.canvasSize / _this.numKeypadCells]);
+                    _this.keypad.showKeypad(_this.keypadSize);
                 }
             };
             // event handler that resizes the game board based on window size
@@ -99,8 +101,10 @@ var Controller = /** @class */ (function () {
                 else if (valueAtActiveCell > 0) {
                     activeIndex = valueAtActiveCell;
                 }
+                _this.keypadSize[0] = 0.95 * _this.canvasSize;
+                _this.keypadSize[1] = 0.95 * _this.canvasSize / _this.numKeypadCells;
                 _this.model.showBoard(_this.canvasSize);
-                _this.keypad.showKeypad([_this.canvasSize, _this.canvasSize / _this.numKeypadCells], activeIndex);
+                _this.keypad.showKeypad(_this.keypadSize, activeIndex);
             };
             this.eventListenersAdded = true;
         }

@@ -1,6 +1,5 @@
 "use strict";
 exports.__esModule = true;
-var utility_1 = require("./utility");
 var Keypad = /** @class */ (function () {
     function Keypad(keypadCanvas) {
         this.values = [];
@@ -10,8 +9,6 @@ var Keypad = /** @class */ (function () {
         for (var i = 0; i < numCells - 1; i++) {
             this.values[i + 1] = i + 1;
         }
-        var desiredSize = utility_1.calculateDesiredCanvasSize();
-        this.showKeypad([desiredSize, desiredSize / numCells]);
     }
     Keypad.prototype.buildDrawTextConfig = function (activeIndex) {
         var output = [];

@@ -16,10 +16,6 @@ export class Keypad {
       for (let i = 0; i < numCells - 1; i++) {
          this.values[i + 1] = i + 1;
       }
-
-      const desiredSize = calculateDesiredCanvasSize();
-
-      this.showKeypad([desiredSize, desiredSize / numCells]);
    }
 
    private buildDrawTextConfig(activeIndex?: number): DrawTextConfig[] {

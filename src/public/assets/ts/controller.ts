@@ -19,6 +19,7 @@ export class Controller {
    private keypad: Keypad;
    private keypadCanvas: HTMLCanvasElement;
    private numKeypadCells: number;
+   private keypadSize: [number, number];
 
    /**
     * Creates an instance of the controller and attaches all needed event
@@ -36,7 +37,9 @@ export class Controller {
       this.canvasSize = calculateDesiredCanvasSize();
       this.keypadCanvas = keypadCanvas;
       this.numKeypadCells = this.keypadView.getBoardInfo().numCellsX;
+      this.keypadSize = [0.95 * this.canvasSize, 0.95 * this.canvasSize / this.numKeypadCells];
       this.attachEventHandlers();
+      this.keypad.showKeypad(this.keypadSize);
    }
 
    private attachEventHandlers(): void {
@@ -56,10 +59,7 @@ export class Controller {
                activeIndex = valueAtActiveCell;
             }
 
-            this.keypad.showKeypad(
-               [this.canvasSize, this.canvasSize/this.numKeypadCells],
-               activeIndex
-               );
+            this.keypad.showKeypad(this.keypadSize, activeIndex);
          });
 
          // event handler for clicks on the virtual keypad
@@ -87,10 +87,7 @@ export class Controller {
                   activeIndex = valueAtActiveCell;
                }
 
-               this.keypad.showKeypad(
-                  [this.canvasSize, this.canvasSize/this.numKeypadCells],
-                  activeIndex
-                  );
+               this.keypad.showKeypad(this.keypadSize, activeIndex);
             }
          });
 
@@ -106,14 +103,14 @@ export class Controller {
                if (this.model.insertGuess(key)) {
                   this.model.activateCell([-1, -1]);
                   this.model.showBoard(this.canvasSize);
-                  this.keypad.showKeypad([this.canvasSize, this.canvasSize/this.numKeypadCells]);
+                  this.keypad.showKeypad(this.keypadSize);
                }   
             } else if (event.keyCode === 8 || event.keyCode === 46) {
                // deletion of guess
                this.model.deleteGuess();
                this.model.activateCell([-1, -1]);
                this.model.showBoard(this.canvasSize);
-               this.keypad.showKeypad([this.canvasSize, this.canvasSize/this.numKeypadCells]);
+               this.keypad.showKeypad(this.keypadSize);
             }
          }
 
@@ -130,11 +127,11 @@ export class Controller {
                activeIndex = valueAtActiveCell;
             }
 
+            this.keypadSize[0] = 0.95 * this.canvasSize;
+            this.keypadSize[1] = 0.95 * this.canvasSize / this.numKeypadCells;
+
             this.model.showBoard(this.canvasSize);
-            this.keypad.showKeypad(
-               [this.canvasSize, this.canvasSize/this.numKeypadCells],
-               activeIndex
-               );
+            this.keypad.showKeypad(this.keypadSize, activeIndex);
          }
 
          this.eventListenersAdded = true;

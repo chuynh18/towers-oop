@@ -109,6 +109,7 @@ export class CanvasRenderer {
          const stepSize = this.cellHeight * i;
 
          this.draw.beginPath();
+         this.draw.lineWidth = 2;
          this.draw.moveTo(padding * this.cellWidth, stepSize);
          this.draw.lineTo(this.canvas.width - (padding * this.cellWidth), stepSize);
          this.draw.stroke();
