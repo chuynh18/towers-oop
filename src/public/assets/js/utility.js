@@ -69,7 +69,7 @@ exports.arrayCompare = arrayCompare;
 function calculateDesiredCanvasSize() {
     var body = document.getElementsByTagName("body")[0];
     var width = body.clientWidth;
-    var height = 0.90 * window.innerHeight - 120;
+    var height = 0.80 * window.innerHeight - 20;
     return width > height ? height : width;
 }
 exports.calculateDesiredCanvasSize = calculateDesiredCanvasSize;

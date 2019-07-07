@@ -80,6 +80,6 @@ export function arrayCompare(a: any, b: any): boolean {
 export function calculateDesiredCanvasSize(): number {
    const body = document.getElementsByTagName("body")[0];
    const width = body.clientWidth;
-   const height = 0.90 * window.innerHeight - 120;
+   const height = 0.80 * window.innerHeight - 20;
    return width > height ? height : width;
 }
