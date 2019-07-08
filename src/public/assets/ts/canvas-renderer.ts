@@ -98,31 +98,48 @@ export class CanvasRenderer {
     * 
     * @returns void
     */
-   private drawGrid(padding?: number): void {
+   private drawGrid(padding?: number, delay?: number): void {
       // default padding to zero if drawGrid() is invoked with no argument
       if (typeof padding === "undefined") {
          padding = 0;
       }
 
+      if (typeof delay === "undefined") {
+         delay = 0;
+      }
+
       // draw horizontal lines
       for (let i = padding; i <= this.numCellsY - padding; i++) {
-         const stepSize = this.cellHeight * i;
+         setTimeout(() => {
+            if (typeof padding === "undefined") {
+               console.log("padding is undefined");
+               padding = 0;
+            }
+            const stepSize = this.cellHeight * i;
 
-         this.draw.beginPath();
-         this.draw.lineWidth = 2;
-         this.draw.moveTo(padding * this.cellWidth, stepSize);
-         this.draw.lineTo(this.canvas.width - (padding * this.cellWidth), stepSize);
-         this.draw.stroke();
+            this.draw.beginPath();
+            this.draw.lineWidth = 2;
+            this.draw.moveTo(padding * this.cellWidth, stepSize);
+            this.draw.lineTo(this.canvas.width - (padding * this.cellWidth), stepSize);
+            this.draw.stroke();
+         }, delay * i);
       }
 
       // draw vertical lines
       for (let i = padding; i <= this.numCellsX - padding; i++) {
-         const stepSize = this.cellWidth * i;
+         
+         setTimeout(() => {
+            if (typeof padding === "undefined") {
+               console.log("padding is undefined");
+               padding = 0;
+            }
+            const stepSize = this.cellWidth * i;
 
-         this.draw.beginPath();
-         this.draw.moveTo(stepSize, padding * this.cellHeight);
-         this.draw.lineTo(stepSize, this.canvas.height - (padding * this.cellHeight));
-         this.draw.stroke();
+            this.draw.beginPath();
+            this.draw.moveTo(stepSize, padding * this.cellHeight);
+            this.draw.lineTo(stepSize, this.canvas.height - (padding * this.cellHeight));
+            this.draw.stroke();
+         }, delay * i);
       }
    }
 
@@ -282,8 +299,12 @@ export class CanvasRenderer {
     * 
     * @returns void
     */
-   public render(renderConfig: RenderConfig): void {
+   public render(renderConfig: RenderConfig, delay?: number): void {
       this.clearCanvas();
+
+      if (typeof delay === "undefined") {
+         delay = 0;
+      }
 
       // resize the grid if necessary
       if (Array.isArray(renderConfig.canvasSize)) {
@@ -298,7 +319,7 @@ export class CanvasRenderer {
             }
       }
 
-      this.drawGrid(renderConfig.padding);
+      this.drawGrid(renderConfig.padding, delay);
 
       // render highlighted cell(s) if config object contains highlight key
       if (Array.isArray(renderConfig.highlight)) {
