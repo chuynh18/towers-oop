@@ -104,43 +104,63 @@ export class CanvasRenderer {
          padding = 0;
       }
 
+      // have to do this ugly conditional because Chrome isn't good at optimizing
+      // out setTimeouts of 0 when drawing to the canvas (you get flickering!)
       if (typeof delay === "undefined") {
-         delay = 0;
-      }
-
-      // draw horizontal lines
-      for (let i = padding; i <= this.numCellsY - padding; i++) {
-         setTimeout(() => {
-            if (typeof padding === "undefined") {
-               console.log("padding is undefined");
-               padding = 0;
-            }
+         // draw horizontal lines
+         for (let i = padding; i <= this.numCellsY - padding; i++) {
             const stepSize = this.cellHeight * i;
 
             this.draw.beginPath();
             this.draw.lineWidth = 2;
             this.draw.moveTo(padding * this.cellWidth, stepSize);
             this.draw.lineTo(this.canvas.width - (padding * this.cellWidth), stepSize);
-            this.draw.stroke();
-         }, delay * i);
-      }
+            this.draw.stroke();  
+         }
 
-      // draw vertical lines
-      for (let i = padding; i <= this.numCellsX - padding; i++) {
-         
-         setTimeout(() => {
-            if (typeof padding === "undefined") {
-               console.log("padding is undefined");
-               padding = 0;
-            }
+         // draw vertical lines
+         for (let i = padding; i <= this.numCellsX - padding; i++) {
             const stepSize = this.cellWidth * i;
 
             this.draw.beginPath();
             this.draw.moveTo(stepSize, padding * this.cellHeight);
             this.draw.lineTo(stepSize, this.canvas.height - (padding * this.cellHeight));
             this.draw.stroke();
-         }, delay * i);
+         }
+      } else {
+         // draw horizontal lines
+         for (let i = padding; i <= this.numCellsY - padding; i++) {
+            setTimeout(() => {
+               if (typeof padding === "undefined") {
+                  padding = 0;
+               }
+               const stepSize = this.cellHeight * i;
+
+               this.draw.beginPath();
+               this.draw.lineWidth = 2;
+               this.draw.moveTo(padding * this.cellWidth, stepSize);
+               this.draw.lineTo(this.canvas.width - (padding * this.cellWidth), stepSize);
+               this.draw.stroke();
+            }, delay * i);
+         }
+
+         // draw vertical lines
+         for (let i = padding; i <= this.numCellsX - padding; i++) {
+            setTimeout(() => {
+               if (typeof padding === "undefined") {
+                  padding = 0;
+               }
+               const stepSize = this.cellWidth * i;
+
+               this.draw.beginPath();
+               this.draw.moveTo(stepSize, padding * this.cellHeight);
+               this.draw.lineTo(stepSize, this.canvas.height - (padding * this.cellHeight));
+               this.draw.stroke();
+            }, delay * i);
+         }
       }
+
+      
    }
 
    /**
@@ -301,10 +321,6 @@ export class CanvasRenderer {
     */
    public render(renderConfig: RenderConfig, delay?: number): void {
       this.clearCanvas();
-
-      if (typeof delay === "undefined") {
-         delay = 0;
-      }
 
       // resize the grid if necessary
       if (Array.isArray(renderConfig.canvasSize)) {

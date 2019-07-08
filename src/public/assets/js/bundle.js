@@ -216,42 +216,60 @@ var CanvasRenderer = /** @class */ (function () {
             padding = 0;
         }
         if (typeof delay === "undefined") {
-            delay = 0;
+            console.log("no settimeout");
+            // draw horizontal lines
+            for (var i = padding; i <= this.numCellsY - padding; i++) {
+                var stepSize = this.cellHeight * i;
+                this.draw.beginPath();
+                this.draw.lineWidth = 2;
+                this.draw.moveTo(padding * this.cellWidth, stepSize);
+                this.draw.lineTo(this.canvas.width - (padding * this.cellWidth), stepSize);
+                this.draw.stroke();
+            }
+            // draw vertical lines
+            for (var i = padding; i <= this.numCellsX - padding; i++) {
+                var stepSize = this.cellWidth * i;
+                this.draw.beginPath();
+                this.draw.moveTo(stepSize, padding * this.cellHeight);
+                this.draw.lineTo(stepSize, this.canvas.height - (padding * this.cellHeight));
+                this.draw.stroke();
+            }
         }
-        var _loop_1 = function (i) {
-            setTimeout(function () {
-                if (typeof padding === "undefined") {
-                    console.log("padding is undefined");
-                    padding = 0;
-                }
-                var stepSize = _this.cellHeight * i;
-                _this.draw.beginPath();
-                _this.draw.lineWidth = 2;
-                _this.draw.moveTo(padding * _this.cellWidth, stepSize);
-                _this.draw.lineTo(_this.canvas.width - (padding * _this.cellWidth), stepSize);
-                _this.draw.stroke();
-            }, delay * i);
-        };
-        // draw horizontal lines
-        for (var i = padding; i <= this.numCellsY - padding; i++) {
-            _loop_1(i);
-        }
-        var _loop_2 = function (i) {
-            setTimeout(function () {
-                if (typeof padding === "undefined") {
-                    console.log("padding is undefined");
-                    padding = 0;
-                }
-                var stepSize = _this.cellWidth * i;
-                _this.draw.beginPath();
-                _this.draw.moveTo(stepSize, padding * _this.cellHeight);
-                _this.draw.lineTo(stepSize, _this.canvas.height - (padding * _this.cellHeight));
-                _this.draw.stroke();
-            }, delay * i);
-        };
-        // draw vertical lines
-        for (var i = padding; i <= this.numCellsX - padding; i++) {
-            _loop_2(i);
+        else {
+            console.log("settimeout");
+            var _loop_1 = function (i) {
+                setTimeout(function () {
+                    if (typeof padding === "undefined") {
+                        padding = 0;
+                    }
+                    var stepSize = _this.cellHeight * i;
+                    _this.draw.beginPath();
+                    _this.draw.lineWidth = 2;
+                    _this.draw.moveTo(padding * _this.cellWidth, stepSize);
+                    _this.draw.lineTo(_this.canvas.width - (padding * _this.cellWidth), stepSize);
+                    _this.draw.stroke();
+                }, delay * i);
+            };
+            // draw horizontal lines
+            for (var i = padding; i <= this.numCellsY - padding; i++) {
+                _loop_1(i);
+            }
+            var _loop_2 = function (i) {
+                setTimeout(function () {
+                    if (typeof padding === "undefined") {
+                        padding = 0;
+                    }
+                    var stepSize = _this.cellWidth * i;
+                    _this.draw.beginPath();
+                    _this.draw.moveTo(stepSize, padding * _this.cellHeight);
+                    _this.draw.lineTo(stepSize, _this.canvas.height - (padding * _this.cellHeight));
+                    _this.draw.stroke();
+                }, delay * i);
+            };
+            // draw vertical lines
+            for (var i = padding; i <= this.numCellsX - padding; i++) {
+                _loop_2(i);
+            }
         }
     };
     /**
@@ -392,9 +410,6 @@ var CanvasRenderer = /** @class */ (function () {
     CanvasRenderer.prototype.render = function (renderConfig, delay) {
         var _this = this;
         this.clearCanvas();
-        if (typeof delay === "undefined") {
-            delay = 0;
-        }
         // resize the grid if necessary
         if (Array.isArray(renderConfig.canvasSize)) {
             if (renderConfig.canvasSize[0] !== this.canvas.width ||
@@ -664,7 +679,7 @@ var Game = /** @class */ (function () {
         this.board = new Board_1.Board(gameBoardSize);
         this.buildArray(gameBoardSize + 2, this.cluesAndGuesses);
         this.buildArray(gameBoardSize + 2, this.drawTextConfigBoard);
-        this.populateGuessArrayWithClues(150, function () { _this.showBoard(utility_1.calculateDesiredCanvasSize(), 150); });
+        this.populateGuessArrayWithClues(100, function () { _this.showBoard(utility_1.calculateDesiredCanvasSize(), 100); });
     }
     /**
      * If a cell is active, returns the current value of that active cell, which
@@ -739,37 +754,44 @@ var Game = /** @class */ (function () {
         var _this = this;
         var clues = this.board.getClues();
         if (typeof stepDelay === "undefined") {
-            stepDelay = 0;
+            for (var i = 0; i < clues.length / 4; i++) {
+                this.cluesAndGuesses[0][i + 1] = clues[i]; // top
+                this.cluesAndGuesses[i + 1][this.cluesAndGuesses.length - 1] = clues[clues.length / 4 + i]; // right
+                this.cluesAndGuesses[this.cluesAndGuesses.length - 1][this.cluesAndGuesses.length - i - 2] = clues[clues.length / 2 + i]; // bottom
+                this.cluesAndGuesses[this.cluesAndGuesses.length - i - 2][0] = clues[(3 * clues.length) / 4 + i]; // left 
+            }
         }
-        var _loop_1 = function (i) {
-            setTimeout(function () {
-                _this.cluesAndGuesses[0][i + 1] = clues[i]; // top
-                if (cb) {
-                    cb();
-                }
-            }, stepDelay * i + stepDelay / 4);
-            setTimeout(function () {
-                _this.cluesAndGuesses[i + 1][_this.cluesAndGuesses.length - 1] = clues[clues.length / 4 + i]; // right
-                if (cb) {
-                    cb();
-                }
-            }, stepDelay * i + stepDelay / 2);
-            setTimeout(function () {
-                _this.cluesAndGuesses[_this.cluesAndGuesses.length - 1][_this.cluesAndGuesses.length - i - 2] = clues[clues.length / 2 + i]; // bottom
-                if (cb) {
-                    cb();
-                }
-            }, stepDelay * i + (3 * stepDelay / 4));
-            setTimeout(function () {
-                _this.cluesAndGuesses[_this.cluesAndGuesses.length - i - 2][0] = clues[(3 * clues.length) / 4 + i]; // left
-                if (cb) {
-                    cb();
-                }
-            }, stepDelay * i + stepDelay);
-        };
-        // Uh-oh, SpaghettiOs!
-        for (var i = 0; i < clues.length / 4; i++) {
-            _loop_1(i);
+        else {
+            var _loop_1 = function (i) {
+                setTimeout(function () {
+                    _this.cluesAndGuesses[0][i + 1] = clues[i]; // top
+                    if (cb) {
+                        cb();
+                    }
+                }, stepDelay * i + stepDelay / 4);
+                setTimeout(function () {
+                    _this.cluesAndGuesses[i + 1][_this.cluesAndGuesses.length - 1] = clues[clues.length / 4 + i]; // right
+                    if (cb) {
+                        cb();
+                    }
+                }, stepDelay * i + stepDelay / 2);
+                setTimeout(function () {
+                    _this.cluesAndGuesses[_this.cluesAndGuesses.length - 1][_this.cluesAndGuesses.length - i - 2] = clues[clues.length / 2 + i]; // bottom
+                    if (cb) {
+                        cb();
+                    }
+                }, stepDelay * i + (3 * stepDelay / 4));
+                setTimeout(function () {
+                    _this.cluesAndGuesses[_this.cluesAndGuesses.length - i - 2][0] = clues[(3 * clues.length) / 4 + i]; // left
+                    if (cb) {
+                        cb();
+                    }
+                }, stepDelay * i + stepDelay);
+            };
+            // Uh-oh, SpaghettiOs!
+            for (var i = 0; i < clues.length / 4; i++) {
+                _loop_1(i);
+            }
         }
     };
     /**
@@ -1110,9 +1132,6 @@ var Game = /** @class */ (function () {
         var valid = this.validateBoard();
         var filledBoard = this.userHasFilledOutBoard();
         console.log("valid: " + valid + ", filled board: " + filledBoard);
-        if (typeof delay === "undefined") {
-            delay = 0;
-        }
         var renderConfig = {
             padding: 1,
             board: this.drawTextConfigBoard

@@ -114,30 +114,35 @@ export class Game {
       const clues = this.board.getClues();
 
       if (typeof stepDelay === "undefined") {
-         stepDelay = 0;
-      }
-
-      // Uh-oh, SpaghettiOs!
-      for (let i = 0; i < clues.length / 4; i++) {
-         setTimeout(() => {
+         for (let i = 0; i < clues.length / 4; i++) {
             this.cluesAndGuesses[0][i + 1] = clues[i]; // top
-            if (cb) {cb()}
-         }, stepDelay * i + stepDelay / 4);
-         
-         setTimeout(() => {
             this.cluesAndGuesses[i + 1][this.cluesAndGuesses.length - 1] = clues[clues.length / 4 + i]; // right
-            if (cb) {cb()}
-         }, stepDelay * i + stepDelay / 2);
-
-         setTimeout(() => {
             this.cluesAndGuesses[this.cluesAndGuesses.length - 1][this.cluesAndGuesses.length - i - 2] = clues[clues.length / 2 + i]; // bottom
-            if (cb) {cb()}
-         }, stepDelay * i + (3 * stepDelay / 4));
-         
-         setTimeout(() => {
-            this.cluesAndGuesses[this.cluesAndGuesses.length - i - 2][0] = clues[(3 * clues.length) / 4 + i]; // left
-            if (cb) {cb()}
-         }, stepDelay * i + stepDelay);
+            this.cluesAndGuesses[this.cluesAndGuesses.length - i - 2][0] = clues[(3 * clues.length) / 4 + i]; // left 
+         }
+      } else {
+         // Uh-oh, SpaghettiOs!
+         for (let i = 0; i < clues.length / 4; i++) {
+            setTimeout(() => {
+               this.cluesAndGuesses[0][i + 1] = clues[i]; // top
+               if (cb) {cb()}
+            }, stepDelay * i + stepDelay / 4);
+            
+            setTimeout(() => {
+               this.cluesAndGuesses[i + 1][this.cluesAndGuesses.length - 1] = clues[clues.length / 4 + i]; // right
+               if (cb) {cb()}
+            }, stepDelay * i + stepDelay / 2);
+
+            setTimeout(() => {
+               this.cluesAndGuesses[this.cluesAndGuesses.length - 1][this.cluesAndGuesses.length - i - 2] = clues[clues.length / 2 + i]; // bottom
+               if (cb) {cb()}
+            }, stepDelay * i + (3 * stepDelay / 4));
+            
+            setTimeout(() => {
+               this.cluesAndGuesses[this.cluesAndGuesses.length - i - 2][0] = clues[(3 * clues.length) / 4 + i]; // left
+               if (cb) {cb()}
+            }, stepDelay * i + stepDelay);
+         }
       }
    }
 
@@ -507,10 +512,6 @@ export class Game {
       const valid = this.validateBoard();
       const filledBoard = this.userHasFilledOutBoard();
       console.log(`valid: ${valid}, filled board: ${filledBoard}`);
-
-      if (typeof delay === "undefined") {
-         delay = 0;
-      }
 
       const renderConfig: RenderConfig = {
          padding: 1,
