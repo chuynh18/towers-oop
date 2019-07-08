@@ -64,7 +64,7 @@ export interface DrawTextConfig {
  */
 export interface RenderConfig {
    padding: number;
-   canvasSize: number | [number, number];
+   canvasSize?: number | [number, number];
    highlight?: HighlightConfig | HighlightConfig[];
    board?: (DrawTextConfig|undefined)[][];
 }

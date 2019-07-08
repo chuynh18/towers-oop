@@ -192,7 +192,7 @@ export class CanvasRenderer {
 
       this.draw.beginPath();
       this.draw.fillStyle = highlight.color;
-      this.draw.rect(pixelCoords[0], pixelCoords[1], this.cellWidth, this.cellHeight);
+      this.draw.rect(pixelCoords[0] + 1, pixelCoords[1] + 1, this.cellWidth - 2, this.cellHeight - 2);
       this.draw.fill();
    }
 
@@ -291,7 +291,7 @@ export class CanvasRenderer {
             renderConfig.canvasSize[1] !== this.canvas.height) {
                this.resize(renderConfig.canvasSize[0], renderConfig.canvasSize[1]);
             }
-      } else {
+      } else if (typeof renderConfig.canvasSize === "number") {
          if (renderConfig.canvasSize !== this.canvas.width ||
             renderConfig.canvasSize !== this.canvas.height) {
                this.resize(renderConfig.canvasSize);

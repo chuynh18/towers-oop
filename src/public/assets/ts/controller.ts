@@ -14,12 +14,10 @@ export class Controller {
    private model: Game;
    private view: CanvasRenderer;
    private canvas: HTMLCanvasElement;
-   private canvasSize: number;
    private keypadView: CanvasRenderer;
    private keypad: Keypad;
    private keypadCanvas: HTMLCanvasElement;
    private numKeypadCells: number;
-   private keypadSize: [number, number];
 
    /**
     * Creates an instance of the controller and attaches all needed event
@@ -34,12 +32,9 @@ export class Controller {
       this.canvas = canvas;
       this.keypadView = keypadView;
       this.keypad = keypad;
-      this.canvasSize = calculateDesiredCanvasSize();
       this.keypadCanvas = keypadCanvas;
       this.numKeypadCells = this.keypadView.getBoardInfo().numCellsX;
-      this.keypadSize = [0.95 * this.canvasSize, 0.95 * this.canvasSize / this.numKeypadCells];
       this.attachEventHandlers();
-      this.keypad.showKeypad(this.keypadSize);
    }
 
    private attachEventHandlers(): void {
@@ -48,7 +43,7 @@ export class Controller {
          this.canvas.addEventListener("click", (event: MouseEvent) => {
             const clickCoords = this.view.calculateClickCoordinates(event);
             this.model.activateCell(clickCoords);
-            this.model.showBoard(this.canvasSize);
+            this.model.showBoard();
             
             const valueAtActiveCell = this.model.getValueAtActiveCell();
             let activeIndex;
@@ -59,7 +54,7 @@ export class Controller {
                activeIndex = valueAtActiveCell;
             }
 
-            this.keypad.showKeypad(this.keypadSize, activeIndex);
+            this.keypad.showKeypad(activeIndex);
          });
 
          // event handler for clicks on the virtual keypad
@@ -71,10 +66,10 @@ export class Controller {
             if (valueAtActiveCell !== -1) {
                if (keypadValue === 0) {
                   this.model.deleteGuess();
-                  this.model.showBoard(this.canvasSize);
+                  this.model.showBoard();
                } else {
                   if (this.model.insertGuess(keypadValue)) {
-                     this.model.showBoard(this.canvasSize);
+                     this.model.showBoard();
                   }
                }
                
@@ -87,7 +82,7 @@ export class Controller {
                   activeIndex = valueAtActiveCell;
                }
 
-               this.keypad.showKeypad(this.keypadSize, activeIndex);
+               this.keypad.showKeypad(activeIndex);
             }
          });
 
@@ -102,21 +97,22 @@ export class Controller {
                // perform insertion.  if success, deactivate cell and update UI
                if (this.model.insertGuess(key)) {
                   this.model.activateCell([-1, -1]);
-                  this.model.showBoard(this.canvasSize);
-                  this.keypad.showKeypad(this.keypadSize);
+                  this.model.showBoard();
+                  this.keypad.showKeypad();
                }   
             } else if (event.keyCode === 8 || event.keyCode === 46) {
                // deletion of guess
                this.model.deleteGuess();
                this.model.activateCell([-1, -1]);
-               this.model.showBoard(this.canvasSize);
-               this.keypad.showKeypad(this.keypadSize);
+               this.model.showBoard();
+               this.keypad.showKeypad();
             }
          }
 
          // event handler that resizes the game board based on window size
          window.onresize = () => {
-            this.canvasSize = calculateDesiredCanvasSize();
+            const canvasSize = calculateDesiredCanvasSize();
+            const keypadSize: [number, number] = [0, 0];
             
             const valueAtActiveCell = this.model.getValueAtActiveCell();
             let activeIndex;
@@ -127,11 +123,11 @@ export class Controller {
                activeIndex = valueAtActiveCell;
             }
 
-            this.keypadSize[0] = 0.95 * this.canvasSize;
-            this.keypadSize[1] = 0.95 * this.canvasSize / this.numKeypadCells;
+            keypadSize[0] = 0.95 * canvasSize;
+            keypadSize[1] = 0.95 * canvasSize / this.numKeypadCells;
 
-            this.model.showBoard(this.canvasSize);
-            this.keypad.showKeypad(this.keypadSize, activeIndex);
+            this.model.showBoard(canvasSize);
+            this.keypad.showKeypad(activeIndex, keypadSize);
          }
 
          this.eventListenersAdded = true;

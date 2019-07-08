@@ -1,7 +1,7 @@
 "use strict";
 
 import { CanvasRenderer } from "./canvas-renderer";
-import { DrawTextConfig, HighlightConfig, RenderConfig } from "./interfaces";
+import { DrawTextConfig, RenderConfig } from "./interfaces";
 import { calculateDesiredCanvasSize } from "./utility";
 
 export class Keypad {
@@ -16,6 +16,10 @@ export class Keypad {
       for (let i = 0; i < numCells - 1; i++) {
          this.values[i + 1] = i + 1;
       }
+
+      const desiredCanvasSize = 0.95 * calculateDesiredCanvasSize();
+
+      this.showKeypad(undefined, [desiredCanvasSize, desiredCanvasSize / numCells]);
    }
 
    private buildDrawTextConfig(activeIndex?: number): DrawTextConfig[] {
@@ -43,12 +47,15 @@ export class Keypad {
       return output;
    }
 
-   public showKeypad(canvasSize: number | [number, number], activeIndex?: number) {
+   public showKeypad(activeIndex?: number, canvasSize?: number | [number, number]) {
       const renderConfig: RenderConfig = {
          padding: 0,
-         canvasSize: canvasSize,
          board: [this.buildDrawTextConfig(activeIndex)]
       };
+
+      if (typeof canvasSize === "number" || Array.isArray(canvasSize)) {
+         renderConfig.canvasSize = canvasSize;
+      }
 
       if (typeof activeIndex === "number") {
          renderConfig.highlight = {

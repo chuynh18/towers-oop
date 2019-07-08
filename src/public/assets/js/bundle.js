@@ -292,7 +292,7 @@ var CanvasRenderer = /** @class */ (function () {
         var pixelCoords = utility_1.convertCellCoordsToPixels(highlight.x, highlight.y, this.cellWidth, this.cellHeight);
         this.draw.beginPath();
         this.draw.fillStyle = highlight.color;
-        this.draw.rect(pixelCoords[0], pixelCoords[1], this.cellWidth, this.cellHeight);
+        this.draw.rect(pixelCoords[0] + 1, pixelCoords[1] + 1, this.cellWidth - 2, this.cellHeight - 2);
         this.draw.fill();
     };
     /**
@@ -377,7 +377,7 @@ var CanvasRenderer = /** @class */ (function () {
                 this.resize(renderConfig.canvasSize[0], renderConfig.canvasSize[1]);
             }
         }
-        else {
+        else if (typeof renderConfig.canvasSize === "number") {
             if (renderConfig.canvasSize !== this.canvas.width ||
                 renderConfig.canvasSize !== this.canvas.height) {
                 this.resize(renderConfig.canvasSize);
@@ -443,12 +443,9 @@ var Controller = /** @class */ (function () {
         this.canvas = canvas;
         this.keypadView = keypadView;
         this.keypad = keypad;
-        this.canvasSize = utility_1.calculateDesiredCanvasSize();
         this.keypadCanvas = keypadCanvas;
         this.numKeypadCells = this.keypadView.getBoardInfo().numCellsX;
-        this.keypadSize = [0.95 * this.canvasSize, 0.95 * this.canvasSize / this.numKeypadCells];
         this.attachEventHandlers();
-        this.keypad.showKeypad(this.keypadSize);
     }
     Controller.prototype.attachEventHandlers = function () {
         var _this = this;
@@ -457,7 +454,7 @@ var Controller = /** @class */ (function () {
             this.canvas.addEventListener("click", function (event) {
                 var clickCoords = _this.view.calculateClickCoordinates(event);
                 _this.model.activateCell(clickCoords);
-                _this.model.showBoard(_this.canvasSize);
+                _this.model.showBoard();
                 var valueAtActiveCell = _this.model.getValueAtActiveCell();
                 var activeIndex;
                 if (typeof valueAtActiveCell === "undefined") {
@@ -466,7 +463,7 @@ var Controller = /** @class */ (function () {
                 else if (valueAtActiveCell > 0) {
                     activeIndex = valueAtActiveCell;
                 }
-                _this.keypad.showKeypad(_this.keypadSize, activeIndex);
+                _this.keypad.showKeypad(activeIndex);
             });
             // event handler for clicks on the virtual keypad
             this.keypadCanvas.addEventListener("click", function (event) {
@@ -476,11 +473,11 @@ var Controller = /** @class */ (function () {
                 if (valueAtActiveCell !== -1) {
                     if (keypadValue === 0) {
                         _this.model.deleteGuess();
-                        _this.model.showBoard(_this.canvasSize);
+                        _this.model.showBoard();
                     }
                     else {
                         if (_this.model.insertGuess(keypadValue)) {
-                            _this.model.showBoard(_this.canvasSize);
+                            _this.model.showBoard();
                         }
                     }
                     var valueAtActiveCell_1 = _this.model.getValueAtActiveCell();
@@ -491,7 +488,7 @@ var Controller = /** @class */ (function () {
                     else if (valueAtActiveCell_1 > 0) {
                         activeIndex = valueAtActiveCell_1;
                     }
-                    _this.keypad.showKeypad(_this.keypadSize, activeIndex);
+                    _this.keypad.showKeypad(activeIndex);
                 }
             });
             // event handler that allows user to input and modify their guesses
@@ -502,21 +499,22 @@ var Controller = /** @class */ (function () {
                     // perform insertion.  if success, deactivate cell and update UI
                     if (_this.model.insertGuess(key)) {
                         _this.model.activateCell([-1, -1]);
-                        _this.model.showBoard(_this.canvasSize);
-                        _this.keypad.showKeypad(_this.keypadSize);
+                        _this.model.showBoard();
+                        _this.keypad.showKeypad();
                     }
                 }
                 else if (event.keyCode === 8 || event.keyCode === 46) {
                     // deletion of guess
                     _this.model.deleteGuess();
                     _this.model.activateCell([-1, -1]);
-                    _this.model.showBoard(_this.canvasSize);
-                    _this.keypad.showKeypad(_this.keypadSize);
+                    _this.model.showBoard();
+                    _this.keypad.showKeypad();
                 }
             };
             // event handler that resizes the game board based on window size
             window.onresize = function () {
-                _this.canvasSize = utility_1.calculateDesiredCanvasSize();
+                var canvasSize = utility_1.calculateDesiredCanvasSize();
+                var keypadSize = [0, 0];
                 var valueAtActiveCell = _this.model.getValueAtActiveCell();
                 var activeIndex;
                 if (typeof valueAtActiveCell === "undefined") {
@@ -525,10 +523,10 @@ var Controller = /** @class */ (function () {
                 else if (valueAtActiveCell > 0) {
                     activeIndex = valueAtActiveCell;
                 }
-                _this.keypadSize[0] = 0.95 * _this.canvasSize;
-                _this.keypadSize[1] = 0.95 * _this.canvasSize / _this.numKeypadCells;
-                _this.model.showBoard(_this.canvasSize);
-                _this.keypad.showKeypad(_this.keypadSize, activeIndex);
+                keypadSize[0] = 0.95 * canvasSize;
+                keypadSize[1] = 0.95 * canvasSize / _this.numKeypadCells;
+                _this.model.showBoard(canvasSize);
+                _this.keypad.showKeypad(activeIndex, keypadSize);
             };
             this.eventListenersAdded = true;
         }
@@ -558,6 +556,7 @@ var controller = new controller_1.Controller(model, view, GAME_CANVAS, keypadVie
 },{"./canvas-renderer":2,"./controller":3,"./keypad":5,"./model":6}],5:[function(require,module,exports){
 "use strict";
 exports.__esModule = true;
+var utility_1 = require("./utility");
 var Keypad = /** @class */ (function () {
     function Keypad(keypadCanvas) {
         this.values = [];
@@ -567,6 +566,8 @@ var Keypad = /** @class */ (function () {
         for (var i = 0; i < numCells - 1; i++) {
             this.values[i + 1] = i + 1;
         }
+        var desiredCanvasSize = 0.95 * utility_1.calculateDesiredCanvasSize();
+        this.showKeypad(undefined, [desiredCanvasSize, desiredCanvasSize / numCells]);
     }
     Keypad.prototype.buildDrawTextConfig = function (activeIndex) {
         var output = [];
@@ -588,12 +589,14 @@ var Keypad = /** @class */ (function () {
         }
         return output;
     };
-    Keypad.prototype.showKeypad = function (canvasSize, activeIndex) {
+    Keypad.prototype.showKeypad = function (activeIndex, canvasSize) {
         var renderConfig = {
             padding: 0,
-            canvasSize: canvasSize,
             board: [this.buildDrawTextConfig(activeIndex)]
         };
+        if (typeof canvasSize === "number" || Array.isArray(canvasSize)) {
+            renderConfig.canvasSize = canvasSize;
+        }
         if (typeof activeIndex === "number") {
             renderConfig.highlight = {
                 x: activeIndex,
@@ -607,7 +610,7 @@ var Keypad = /** @class */ (function () {
 }());
 exports.Keypad = Keypad;
 
-},{}],6:[function(require,module,exports){
+},{"./utility":7}],6:[function(require,module,exports){
 "use strict";
 exports.__esModule = true;
 var Board_1 = require("./Board");
@@ -934,7 +937,7 @@ var Game = /** @class */ (function () {
                     valid = false;
                 }
                 else {
-                    drawTextCell.color = "black";
+                    drawTextCell.color = "blue";
                 }
             }
         }
@@ -1055,14 +1058,13 @@ var Game = /** @class */ (function () {
         var valid = this.validateBoard();
         var filledBoard = this.userHasFilledOutBoard();
         console.log("valid: " + valid + ", filled board: " + filledBoard);
-        if (valid && filledBoard) {
-            this.victory();
-        }
         var renderConfig = {
             padding: 1,
-            canvasSize: pixelSize,
             board: this.drawTextConfigBoard
         };
+        if (typeof pixelSize === "number") {
+            renderConfig.canvasSize = pixelSize;
+        }
         if (this.activeCell[0] > -1 && this.activeCell[1] > -1) {
             var highlightConfig = {
                 x: this.activeCell[0],
@@ -1072,6 +1074,9 @@ var Game = /** @class */ (function () {
             renderConfig.highlight = highlightConfig;
         }
         this.view.render(renderConfig);
+        if (valid && filledBoard) {
+            this.victory();
+        }
     };
     return Game;
 }());

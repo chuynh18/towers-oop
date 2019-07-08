@@ -360,7 +360,7 @@ export class Game {
                drawTextCell.color = "red";
                valid = false;
             } else {
-               drawTextCell.color = "black";
+               drawTextCell.color = "blue";
             }
          }
       }
@@ -484,21 +484,20 @@ export class Game {
     * @param  {number} pixelSize
     * @returns void
     */
-   public showBoard(pixelSize: number): void {
+   public showBoard(pixelSize?: number): void {
       this.updateDrawTextArray();
       const valid = this.validateBoard();
       const filledBoard = this.userHasFilledOutBoard();
       console.log(`valid: ${valid}, filled board: ${filledBoard}`);
 
-      if (valid && filledBoard) {
-         this.victory();
-      }
-
       const renderConfig: RenderConfig = {
          padding: 1,
-         canvasSize: pixelSize,
          board: this.drawTextConfigBoard
       };
+
+      if (typeof pixelSize === "number") {
+         renderConfig.canvasSize = pixelSize;
+      }
 
       if (this.activeCell[0] > -1 && this.activeCell[1] > -1) {
          const highlightConfig: HighlightConfig = {
@@ -511,5 +510,9 @@ export class Game {
       }
 
       this.view.render(renderConfig);
+
+      if (valid && filledBoard) {
+         this.victory();
+      }
    }
 }
